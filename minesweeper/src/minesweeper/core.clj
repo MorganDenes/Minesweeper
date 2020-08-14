@@ -1,4 +1,4 @@
-(ns clojure-noob.core
+(ns minesweeper.core
   (:gen-class))
 
 (def not-nil (complement nil?))
