@@ -3,28 +3,8 @@
 
 (def not-nil (complement nil?))
 
-
-(defn GetPlay
-  []
-  (do (print "Input: ")
-      (flush)
-      (read-line)))
-
-(defn UsePlay
-  [play]
-  (let [[plet pnum] play]
-    (println (str "Play letter: " plet " and number: " pnum))
-    {play (rand-int 10)}))
-
-(defn PlayMinesweeper
-  []
-  (loop
-    [plays {}]
-    (let [play (GetPlay)]
-      (println (str "Prior plays: " plays))
-      (UsePlay play)
-      (recur (conj plays play)))))
-
+(defn parse-int [s]
+   (Integer. (re-find  #"\d+" s )))
 
 ; (def to-letter {0 "A" 1 "B" 2 "C" 3 "D" 4 "E" 5 "F" 6 "G" 7 "H" 8 "I" 9 "J"})
 
@@ -77,11 +57,43 @@
               (mmap [x y] "█")))
             (recur x (inc y)))))))
 
+(defn PrintPlayMap
+  [plays]
+  (loop [x 0 y 0]
+    (if (= y 10)
+      (do (newline) (recur (inc x) 0))
+      (if (= x 10)
+        plays
+        (do (print (get plays [x y] "█"))
+            (recur x (inc y)))))))
+  
+
+(defn GetMove
+  []
+  (do (print "Input: ")
+      (flush)
+      (let [[a b] (read-line)]
+        (into [] (map #(dec %) (map #(Integer/parseInt (str %)) [b a]))))))
+
+(defn AddMove
+  [plays mmap mines]
+  (let [move (GetMove)]
+    (conj plays (if (mines move)
+                    {move "X"}
+                    (if (mmap move)
+                        {move (mmap move)}
+                        {move "_"})))))
+
+(defn Play
+  [mmap mines]
+  (loop [plays {}]
+    (recur (PrintPlayMap (AddMove plays mmap mines)))))
+
 
 (defn -main
   []
   (let [mines (MakeMines 10)]
-    (PrintMinesMap (MakeMap mines) mines)))
+    (Play (MakeMap mines) mines)))
 
 
 
